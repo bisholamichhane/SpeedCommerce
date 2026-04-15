@@ -8,34 +8,62 @@ datasource db {
 }
 
 model Session {
-  id            String    @id
-  shop          String
-  state         String
-  isOnline      Boolean   @default(false)
-  scope         String?
-  expires       DateTime?
-  accessToken   String
-  userId        BigInt?
-  firstName     String?
-  lastName      String?
-  email         String?
-  accountOwner  Boolean   @default(false)
-  locale        String?
-  collaborator  Boolean?  @default(false)
-  emailVerified Boolean?  @default(false)
+  id                  String    @id
+  shop                String
+  state               String
+  isOnline            Boolean   @default(false)
+  scope               String?
+  expires             DateTime?
+  accessToken         String
+  refreshToken        String?
+  refreshTokenExpires DateTime?
+  userId              BigInt?
+  firstName           String?
+  lastName            String?
+  email               String?
+  accountOwner        Boolean   @default(false)
+  locale              String?
+  collaborator        Boolean?  @default(false)
+  emailVerified       Boolean?  @default(false)
 }
 
 model Product {
-  id          String   @id @default(cuid())
-  externalId  String?  @unique
+  id          String    @id @default(cuid())
+  handle      String    @unique
   title       String
   description String?
   vendor      String?
   productType String?
-  sku         String?
-  price       Float?
-  available   Boolean  @default(true)
+  category    String?
+  tags        String[]  @default([])
+  status      String    @default("active")
   imageUrl    String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  variants    Variant[]
+
+  @@index([vendor])
+  @@index([productType])
+  @@index([status])
+}
+
+model Variant {
+  id             String   @id @default(cuid())
+  productId      String
+  sku            String?
+  barcode        String?
+  price          Float?
+  compareAtPrice Float?
+  inventoryQty   Int      @default(0)
+  color          String?
+  available      Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  product        Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+  @@index([sku])
+  @@index([price])
 }

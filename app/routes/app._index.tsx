@@ -12,6 +12,20 @@ import { boundary } from "@shopify/shopify-app-react-router/server";
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   await authenticate.admin(request);
 
+
+  try {
+    const healthUrl = new URL("/api/health", request.url);
+    const response = await fetch(healthUrl.toString(), { method: "GET" });
+
+    if (!response.ok) {
+      console.error("Health check failed with status:", response.status);
+    } else {
+      const healthData = await response.json();
+      console.log("Health check response:", healthData);
+    }
+  } catch (err) {
+    console.error("Issue while calling /api/health:", err);
+  }
   return null;
 };
 
